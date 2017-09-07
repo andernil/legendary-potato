@@ -61,13 +61,13 @@ str gpio_pc_base_addr, [r3, #GPIO_DOUT]
 //status of pins 0-7 can be found by reading GPIO_PC_DIN
 
 // BEGIN LOOP
-loop:
+label1:
 
 ldr r4, [gpio_pc_base_addr, #GPIO_DIN]
-lsl r4, r4, #8
+lsl r4, r4, #8      
 str r4, [gpio_pa_base_addr, #GPIO_DOUT]
 
-loop
+b label1
 
 
 
