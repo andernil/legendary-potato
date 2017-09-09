@@ -1,6 +1,7 @@
-        .syntax unified
+            .syntax unified
 	
 	      .include "efm32gg.s"
+            .include "main.s"
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -78,7 +79,9 @@
 	//
 	/////////////////////////////////////////////////////////////////////////////
 
-	      .globl  _reset
+	      .long 0x1000
+          .long reset
+          .globl  _reset
 	      .type   _reset, %function
         .thumb_func
 _reset: 
