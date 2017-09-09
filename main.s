@@ -4,7 +4,7 @@
 
 
 //main
-<main>:
+main:
 
 ////////////////////////////////////////
 //Enable CMU for GPIO
@@ -59,6 +59,8 @@ mov r3, #255
 str gpio_pc_base_addr, [r3, #GPIO_DOUT]
 
 //status of pins 0-7 can be found by reading GPIO_PC_DIN
+
+b label1
 
 // BEGIN LOOP
 label1:
