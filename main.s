@@ -2,7 +2,7 @@
             .include "efm32gg.s"
             .include "ex1.s"
 
-
+DON'T USE THIS
 //main
 main:
 
