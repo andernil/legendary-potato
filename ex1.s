@@ -1,7 +1,6 @@
-            .syntax unified
+        .syntax unified
 	
 	      .include "efm32gg.s"
-            .include "main.s"
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -78,15 +77,83 @@
   // The CPU will start executing here after a reset
 	//
 	/////////////////////////////////////////////////////////////////////////////
-
-	      .long 0x1000
-          .long reset
-          .globl  _reset
+	      .globl  _reset
 	      .type   _reset, %function
         .thumb_func
 _reset: 
-          bl <main>
-	      b .  // do nothing
+	////////////////////////////////////////
+	//Enable CMU for GPIO
+	// load CMU base address
+	ldr r2, cmu_base_addr
+	
+	// load current value of HFPERCLK ENABLE
+	ldr r3, [r2,#CMU_HFPERCLKEN0]
+	
+	// set bit for GPIO clk
+	mov r4, #1
+	lsl r4, r4, #CMU_HFPERCLKEN0_GPIO
+	orr r3, r3, r4
+
+	// store new value
+	str r3, [r2, #CMU_HFPERCLKEN0]
+	
+	///////////////////////////////////////////
+	//Loaded addresses and values
+	cmu_base_addr:
+	            .long CMU_BASE
+	gpio_pa_base_addr:
+	            .long GPIO_PA_BASE
+	gpio_pc_base_addr:
+	            .long GPIO_PC_BASE
+	enable_LEDs:
+	            .long 0x55555555
+	enable_GPIO_IN:
+	            .long 0x33333333
+	
+	///////////////////////////////////////////
+	//Enable LEDs (pins 8-15)
+	// set high drive strength for LEDs by writing 0x2 to GPIO_PA_CTRL
+	ldr r0, gpio_pa_base_addr   //DON'T USE THIS REGISTER AGAIN
+	mov r3, #2
+	str r3, [r0, #GPIO_CTRL]
+	
+	//set pins 8-15 to output by writing 0x55555555 to GPIO_PA_MODEH
+	ldr r3, enable_LEDs
+	str r3, [r0, #GPIO_MODEH]
+	
+	//pins 8-15 can be set high or low by writing to bits 8-15 of GPIO_PA_DOUT
+	
+	
+	/////////////////////////////////////////////
+	//Enable inputs for GPIO (pins 0-7)
+	// Set pins 0-7 to input by writing 0x33333333 to GPIO_PC_MODEL
+	ldr r3, enable_GPIO_IN
+	ldr r1, gpio_pc_base_addr   //DON'T USE THIS REGISTER AGAIN
+	str r3, [r1, #GPIO_MODEL]
+	
+	// Enable internal pull-up by writing 0xff to GPIO_PC_DOUT (0xff = 255)
+	mov r3, #255
+	str r3, [r1, #GPIO_DOUT]
+	
+	//status of pins 0-7 can be found by reading GPIO_PC_DIN
+	
+	b label1
+	
+	// BEGIN LOOP
+	label1:
+
+	ldr r4, [r1, #GPIO_DIN]
+	lsl r4, r4, #8
+	str r4, [r0, #GPIO_DOUT]
+	
+	b label1
+	
+	
+
+
+
+
+
 	
 	/////////////////////////////////////////////////////////////////////////////
 	//
