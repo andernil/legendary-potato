@@ -1,4 +1,4 @@
 # readme
 Various files for the Low Level Programming project.
 
-Main.s is the main assembly file, but ex1.s and efm32gg.s are needed aswell.
+ex1.s is the main file for the interrupt version, and ex1_polling is the polling-based version. efm32gg.s is needed aswell.
