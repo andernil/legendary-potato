@@ -20,4 +20,9 @@ void setupTimer(uint16_t period)
 	 * cycles. Remember to configure the NVIC as well, otherwise the
 	 * interrupt handler will not be invoked. 
 	 */
+    *CMU_HFPERCLKEN0 = 32;  /* Enable the clock to the timer module */
+    *TIMER1_TOP = period;  /*The number of ticks between interrupts. Based on the base clock being 14MHz with 48kHz sampling rate. f_clk / f_sample = 292, or can be defined by the input period*/
+    *TIMER1_IEN = 1;    //Enable timer interrupt generation
+    *ISER0 = 4096; //Set bit 12 high to enable timer interrupts
+    *TIMER1_CMD = 1;    //Start timer by writing 1
 }
