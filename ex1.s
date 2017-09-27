@@ -125,14 +125,14 @@ _reset:
 	//Enable interrupt handling NVIC
 	ldr r4, =ISER0		
 	ldr r5, [r4]
-	movw r3, #0x802		
+	movw r3, #0x802	//Enable interrupts on odd and even GPIO pins
 	orr r3, r3, r5
 	str r3, [r4, #0]
 
 
 	//GPIO interrupts
 	ldr r4, =GPIO_BASE
-	ldr r3, =0x22222222
+	ldr r3, =0x22222222	//Enable interrupts on all inputs
 	str r3, [r4, #GPIO_EXTIPSELL]
 	
 	//Set interrupt on pos and neg slope aswell as interrupt generation
@@ -143,7 +143,7 @@ _reset:
 
 	//Enable deep-sleep
 	ldr r4, =SCR
-	mov r3, #6
+	mov r3, #6		//Write six to enable deep sleep mode with wake-up on interrupt
 	str r3, [r4, #0]
 
 	//Initiate deep-sleep
@@ -160,15 +160,15 @@ _reset:
         .thumb_func
 gpio_handler:  
 	//Clear interrupts
-	ldr r1, =GPIO_PC_BASE
+	ldr r1, =GPIO_PC_BAS
 	ldr r2, =GPIO_BASE
 	mov r3, #255
 	str r3, [r2, #GPIO_IFC]
 	
-	ldr r4, [r1, #GPIO_DIN]
-	lsl r4, r4, #8
-	str r4, [r0, #GPIO_DOUT]
-	bx LR
+	ldr r4, [r1, #GPIO_DIN]	//Load the status of the input-pins
+	lsl r4, r4, #8		//Shift bits 8 to the left to align with the output-pins
+	str r4, [r0, #GPIO_DOUT]//Store the shifted status to the outputs to turn on the corresponding lights
+	bx LR			//Return to main loop and go back to sleep mode
 
 dummy_handler:  
         b .  // do nothing
