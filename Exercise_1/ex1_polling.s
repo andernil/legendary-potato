@@ -74,14 +74,14 @@
 	/////////////////////////////////////////////////////////////////////////////
 	//
 	// Reset handler
-  // The CPU will start executing here after a reset
+    // The CPU will start executing here after a reset
 	//
 	/////////////////////////////////////////////////////////////////////////////
 	      .globl  _reset
 	      .type   _reset, %function
         .thumb_func
 _reset: 
-	////////////////////////////////////////
+
 	//Enable CMU for GPIO
 	// load CMU base address
 	ldr r2, =CMU_BASE
@@ -97,8 +97,6 @@ _reset:
 	// store new value
 	str r3, [r2, #CMU_HFPERCLKEN0]
 	
-	///////////////////////////////////////////
-	//Loaded addresses and values
 
 	//Enable LEDs (pins 8-15)
 	// set high drive strength for LEDs by writing 0x2 to GPIO_PA_CTRL
@@ -113,7 +111,7 @@ _reset:
 	//pins 8-15 can be set high or low by writing to bits 8-15 of GPIO_PA_DOUT
 	
 	
-	/////////////////////////////////////////////
+
 	//Enable inputs for GPIO (pins 0-7)
 	// Set pins 0-7 to input by writing 0x33333333 to GPIO_PC_MODEL
 	ldr r3, =0x33333333
@@ -146,8 +144,8 @@ _reset:
 	
 	/////////////////////////////////////////////////////////////////////////////
 	//
-  // GPIO handler
-  // The CPU will jump here when there is a GPIO interrupt
+    // GPIO handler
+    // The CPU will jump here when there is a GPIO interrupt
 	//
 	/////////////////////////////////////////////////////////////////////////////
 	
