@@ -15,7 +15,7 @@ void setupDAC()
 	 * data registers, DAC0_CH0DATA and DAC0_CH1DATA, for example from a
 	 * timer interrupt 
 	 */
-    *CMU_HFPERCLKEN0 = 0x20000; //Enable DAC clock
-    *DAC0_CTRL = 0x50010;   //Prescaled DAC clock
-    *DAC0_CH0CTRL = *DAC0_CH1CTRL = 1;  //Enable left and right audio channels
+	*CMU_HFPERCLKEN0 |= 1 << 17; //Enable DAC clock
+	*DAC0_CTRL = 0x50010;   //Prescaled DAC clock
+	*DAC0_CH0CTRL = *DAC0_CH1CTRL = 1;  //Enable left and right audio channels
 }
