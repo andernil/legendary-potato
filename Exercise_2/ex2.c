@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "efm32gg.h"
 
 /*
@@ -12,7 +11,7 @@
 /*
  * The period between sound samples, in clock cycles 
  */
-#define   SAMPLE_PERIOD   0
+#define SAMPLE_PERIOD  292		//Usually 292 
 
 /*
  * Declaration of peripheral setup functions 
@@ -20,7 +19,7 @@
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
-
+void setupGPIO();
 /*
  * Your code will start executing here 
  */
@@ -32,19 +31,26 @@ int main(void)
 	setupGPIO();
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
-
 	/*
 	 * Enable interrupt handling 
 	 */
-	setupNVIC();
-
+	//setupNVIC();		//Will not run the while loop coming up.
+	*GPIO_PA_DOUT = 0xFFFFFFFF;
 	/*
 	 * TODO for higher energy efficiency, sleep while waiting for
 	 * interrupts instead of infinite loop for busy-waiting 
 	 */
-	while (1) ;
+	while(1){
+		//*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;	
+		if (*TIMER1_CNT == *TIMER1_TOP){    //Turn off LEDS every SAMPLE_PERIOD, like PWM
+			*GPIO_PA_DOUT = 0;  
+		}
+		else {
+			*GPIO_PA_DOUT = 0xFFFFFFFF;  
 
-	return 0;
+		*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
+		}
+	}
 }
 
 void setupNVIC()
@@ -57,6 +63,11 @@ void setupNVIC()
 	 * need TIMER1, GPIO odd and GPIO even interrupt handling for this
 	 * assignment. 
 	 */
+	/*
+   	 */
+	*ISER0 |= 0x802;     //Enable GPIO interrupts
+	*ISER0 |= 1 << 12;   //Set bit 12 high to enable timer interrupts
+
 }
 
 /*
