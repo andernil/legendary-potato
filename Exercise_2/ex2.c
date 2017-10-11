@@ -11,7 +11,7 @@
 /*
  * The period between sound samples, in clock cycles 
  */
-#define SAMPLE_PERIOD  292		//Usually 292 
+#define SAMPLE_PERIOD  400		//Usually 292 
 
 /*
  * Declaration of peripheral setup functions 
@@ -40,15 +40,16 @@ int main(void)
 	 * TODO for higher energy efficiency, sleep while waiting for
 	 * interrupts instead of infinite loop for busy-waiting 
 	 */
+
 	while(1){
 		//*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;	
 		if (*TIMER1_CNT == *TIMER1_TOP){    //Turn off LEDS every SAMPLE_PERIOD, like PWM
-			*GPIO_PA_DOUT = 0;  
+		    *DAC0_CH0DATA = 50;
+		    *DAC0_CH1DATA = 0;	
 		}
 		else {
-			*GPIO_PA_DOUT = 0xFFFFFFFF;  
-
-		*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;
+		    *DAC0_CH0DATA = 2048;
+		    *DAC0_CH1DATA = 2048;
 		}
 	}
 }
@@ -67,9 +68,7 @@ void setupNVIC()
    	 */
 	*ISER0 |= 0x802;     //Enable GPIO interrupts
 	*ISER0 |= 1 << 12;   //Set bit 12 high to enable timer interrupts
-
 }
-
 /*
  * if other interrupt handlers are needed, use the following names:
  * NMI_Handler HardFault_Handler MemManage_Handler BusFault_Handler
