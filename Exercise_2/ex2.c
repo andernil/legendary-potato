@@ -11,64 +11,69 @@
 /*
  * The period between sound samples, in clock cycles 
  */
-#define SAMPLE_PERIOD  400		//Usually 292 
+#define SAMPLE_PERIOD  400	//Usually 292
 
 /*
  * Declaration of peripheral setup functions 
  */
-void setupTimer(uint32_t period);
-void setupDAC();
-void setupNVIC();
-void setupGPIO();
+void setupTimer (uint32_t period);
+void setupDAC ();
+void setupNVIC ();
+void setupGPIO ();
 /*
  * Your code will start executing here 
  */
-int main(void)
+int
+main (void)
 {
-	/*
-	 * Call the peripheral setup functions 
-	 */
-	setupGPIO();
-	setupDAC();
-	setupTimer(SAMPLE_PERIOD);
-	/*
-	 * Enable interrupt handling 
-	 */
-	//setupNVIC();		//Will not run the while loop coming up.
-	*GPIO_PA_DOUT = 0xFFFFFFFF;
-	/*
-	 * TODO for higher energy efficiency, sleep while waiting for
-	 * interrupts instead of infinite loop for busy-waiting 
-	 */
+  /*
+   * Call the peripheral setup functions 
+   */
+  setupGPIO ();
+  setupDAC ();
+  setupTimer (SAMPLE_PERIOD);
+  /*
+   * Enable interrupt handling 
+   */
+  //setupNVIC();          //Will not run the while loop coming up.
+  *GPIO_PA_DOUT = 0xFFFFFFFF;
+  /*
+   * TODO for higher energy efficiency, sleep while waiting for
+   * interrupts instead of infinite loop for busy-waiting 
+   */
 
-	while(1){
-		//*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;	
-		if (*TIMER1_CNT == *TIMER1_TOP){    //Turn off LEDS every SAMPLE_PERIOD, like PWM
-		    *DAC0_CH0DATA = 50;
-		    *DAC0_CH1DATA = 0;	
-		}
-		else {
-		    *DAC0_CH0DATA = 2048;
-		    *DAC0_CH1DATA = 2048;
-		}
-	}
+  while (1)
+    {
+      //*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;    
+      if (*TIMER1_CNT <= (*TIMER1_TOP/2)) {			
+	//Turn off LEDS every SAMPLE_PERIOD, like PWM
+	*DAC0_CH0DATA = 0;
+	*DAC0_CH1DATA = 0;
+      } 
+      else {
+	*DAC0_CH0DATA = 2048;
+	*DAC0_CH1DATA = 2048;
+      }
+    }
 }
 
-void setupNVIC()
+void
+setupNVIC ()
 {
-	/*
-	 * TODO use the NVIC ISERx registers to enable handling of
-	 * interrupt(s) remember two things are necessary for interrupt
-	 * handling: - the peripheral must generate an interrupt signal - the
-	 * NVIC must be configured to make the CPU handle the signal You will
-	 * need TIMER1, GPIO odd and GPIO even interrupt handling for this
-	 * assignment. 
-	 */
-	/*
-   	 */
-	*ISER0 |= 0x802;     //Enable GPIO interrupts
-	*ISER0 |= 1 << 12;   //Set bit 12 high to enable timer interrupts
+  /*
+   * TODO use the NVIC ISERx registers to enable handling of
+   * interrupt(s) remember two things are necessary for interrupt
+   * handling: - the peripheral must generate an interrupt signal - the
+   * NVIC must be configured to make the CPU handle the signal You will
+   * need TIMER1, GPIO odd and GPIO even interrupt handling for this
+   * assignment. 
+   */
+  /*
+   */
+  *ISER0 |= 0x802;		//Enable GPIO interrupts
+  *ISER0 |= 1 << 12;		//Set bit 12 high to enable timer interrupts
 }
+
 /*
  * if other interrupt handlers are needed, use the following names:
  * NMI_Handler HardFault_Handler MemManage_Handler BusFault_Handler
