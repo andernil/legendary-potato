@@ -1,6 +1,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "efm32gg.h"
+#include "sound1.c"
+#include "sound2.c"
+#include "sound3.c"
+#include "intro.c"
 
 /*
  * TODO calculate the appropriate sample period for the sound wave(s) you 
@@ -11,20 +15,22 @@
 /*
  * The period between sound samples, in clock cycles 
  */
-#define SAMPLE_PERIOD  400	//Usually 292
+#define SAMPLE_PERIOD  317	//Usually 292
+#define IDLE 0x7FF
 
 /*
  * Declaration of peripheral setup functions 
  */
+
 void setupTimer (uint32_t period);
 void setupDAC ();
 void setupNVIC ();
 void setupGPIO ();
+void selection ();
 /*
  * Your code will start executing here 
  */
-int
-main (void)
+int main (void)
 {
   /*
    * Call the peripheral setup functions 
@@ -36,29 +42,18 @@ main (void)
    * Enable interrupt handling 
    */
   //setupNVIC();          //Will not run the while loop coming up.
-  *GPIO_PA_DOUT = 0xFFFFFFFF;
   /*
    * TODO for higher energy efficiency, sleep while waiting for
    * interrupts instead of infinite loop for busy-waiting 
-   */
+   */ 
 
-  while (1)
+while (1)
     {
-      //*GPIO_PA_DOUT = *GPIO_PC_DIN << 8;    
-      if (*TIMER1_CNT <= (*TIMER1_TOP/2)) {			
-	//Turn off LEDS every SAMPLE_PERIOD, like PWM
-	*DAC0_CH0DATA = 0;
-	*DAC0_CH1DATA = 0;
-      } 
-      else {
-	*DAC0_CH0DATA = 2048;
-	*DAC0_CH1DATA = 2048;
-      }
+	selection();
     }
 }
 
-void
-setupNVIC ()
+void setupNVIC ()
 {
   /*
    * TODO use the NVIC ISERx registers to enable handling of
@@ -73,7 +68,55 @@ setupNVIC ()
   *ISER0 |= 0x802;		//Enable GPIO interrupts
   *ISER0 |= 1 << 12;		//Set bit 12 high to enable timer interrupts
 }
-
+void selection (){
+uint8_t keys = ~*GPIO_PC_DIN;
+*GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
+int count = 1;
+switch(keys)
+	{
+	case (0b00010000):
+		while (count < shoot[0]){
+			if(*TIMER1_CNT > (*TIMER1_TOP*0.45)){
+				*DAC0_CH0DATA = shoot[count];
+				*DAC0_CH1DATA = shoot[count];
+				count++;
+			}
+		}
+		break;
+	case (0b00100000):
+		while (count < coin[0]){
+			if(*TIMER1_CNT > (*TIMER1_TOP*0.1)){
+				*DAC0_CH0DATA = coin[count];
+				*DAC0_CH1DATA = coin[count];
+				count++;
+			}
+		}
+		break;
+	case (0b01000000):
+		while (count < pacman_eat[0]){
+			if(*TIMER1_CNT > (*TIMER1_TOP*0.3)){
+				*DAC0_CH0DATA = pacman_eat[count];
+				*DAC0_CH1DATA = pacman_eat[count];
+				count++;
+			}
+		}
+		break;
+	case (0b10000000):
+		while (count < pacman_intro[0]){
+			if(*TIMER1_CNT > (*TIMER1_TOP*0.01)){
+				*DAC0_CH0DATA = pacman_intro[count];
+				*DAC0_CH1DATA = pacman_intro[count];
+				count++;
+			}
+		} 
+			break;
+	
+	default:
+		*DAC0_CH0DATA = IDLE;
+		*DAC0_CH1DATA = IDLE;
+		break;
+	}
+}
 /*
  * if other interrupt handlers are needed, use the following names:
  * NMI_Handler HardFault_Handler MemManage_Handler BusFault_Handler
