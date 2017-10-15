@@ -17,7 +17,7 @@
  */
 #define SAMPLE_PERIOD  317	//Usually 292
 #define IDLE 0x7FF
-
+unsigned int introlength = 185960;
 /*
  * Declaration of peripheral setup functions 
  */
@@ -71,12 +71,12 @@ void setupNVIC ()
 void selection (){
 uint8_t keys = ~*GPIO_PC_DIN;
 *GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
-int count = 1;
+int time = *TIMER1_TOP*0.9 ;
 switch(keys)
 	{
 	case (0b00010000):
-		while (count < shoot[0]){
-			if(*TIMER1_CNT > (*TIMER1_TOP*0.45)){
+		for (int count = 1; count <= shoot[0];){
+			if(*TIMER1_CNT >= time){			//Comparing with *TIMER1_TOP causes instability.
 				*DAC0_CH0DATA = shoot[count];
 				*DAC0_CH1DATA = shoot[count];
 				count++;
@@ -84,8 +84,8 @@ switch(keys)
 		}
 		break;
 	case (0b00100000):
-		while (count < coin[0]){
-			if(*TIMER1_CNT > (*TIMER1_TOP*0.1)){
+		for (int count = 1; count <= coin[0];){
+			if(*TIMER1_CNT >= time){
 				*DAC0_CH0DATA = coin[count];
 				*DAC0_CH1DATA = coin[count];
 				count++;
@@ -93,8 +93,8 @@ switch(keys)
 		}
 		break;
 	case (0b01000000):
-		while (count < pacman_eat[0]){
-			if(*TIMER1_CNT > (*TIMER1_TOP*0.3)){
+		for (int count = 1; count <= pacman_eat[0];){
+			if(*TIMER1_CNT >= time){
 				*DAC0_CH0DATA = pacman_eat[count];
 				*DAC0_CH1DATA = pacman_eat[count];
 				count++;
@@ -102,8 +102,8 @@ switch(keys)
 		}
 		break;
 	case (0b10000000):
-		while (count < pacman_intro[0]){
-			if(*TIMER1_CNT > (*TIMER1_TOP*0.01)){
+		for (int count = 1; count <= introlength;){
+			if(*TIMER1_CNT >= time){
 				*DAC0_CH0DATA = pacman_intro[count];
 				*DAC0_CH1DATA = pacman_intro[count];
 				count++;
