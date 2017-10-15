@@ -27,6 +27,7 @@ void setupDAC ();
 void setupNVIC ();
 void setupGPIO ();
 void selection ();
+void playsound ();
 /*
  * Your code will start executing here 
  */
@@ -38,6 +39,7 @@ int main (void)
   setupGPIO ();
   setupDAC ();
   setupTimer (SAMPLE_PERIOD);
+  
   /*
    * Enable interrupt handling 
    */
@@ -46,12 +48,11 @@ int main (void)
    * TODO for higher energy efficiency, sleep while waiting for
    * interrupts instead of infinite loop for busy-waiting 
    */ 
-
-while (1)
-    {
-	selection();
-    }
+  while(1){
+  	selection();
+  }
 }
+
 
 void setupNVIC ()
 {
@@ -71,50 +72,70 @@ void setupNVIC ()
 void selection (){
 uint8_t keys = ~*GPIO_PC_DIN;
 *GPIO_PA_DOUT = (*GPIO_PC_DIN << 8);
-int time = *TIMER1_TOP*0.9 ;
 switch(keys)
 	{
 	case (0b00010000):
-		for (int count = 1; count <= shoot[0];){
-			if(*TIMER1_CNT >= time){			//Comparing with *TIMER1_TOP causes instability.
-				*DAC0_CH0DATA = shoot[count];
-				*DAC0_CH1DATA = shoot[count];
-				count++;
-			}
-		}
+		playsound(0);
 		break;
 	case (0b00100000):
-		for (int count = 1; count <= coin[0];){
-			if(*TIMER1_CNT >= time){
-				*DAC0_CH0DATA = coin[count];
-				*DAC0_CH1DATA = coin[count];
-				count++;
-			}
-		}
+		playsound(1);
 		break;
 	case (0b01000000):
-		for (int count = 1; count <= pacman_eat[0];){
-			if(*TIMER1_CNT >= time){
-				*DAC0_CH0DATA = pacman_eat[count];
-				*DAC0_CH1DATA = pacman_eat[count];
-				count++;
-			}
-		}
+		playsound(2);
 		break;
 	case (0b10000000):
-		for (int count = 1; count <= introlength;){
-			if(*TIMER1_CNT >= time){
-				*DAC0_CH0DATA = pacman_intro[count];
-				*DAC0_CH1DATA = pacman_intro[count];
-				count++;
-			}
-		} 
-			break;
-	
+		playsound(3);	
+		break;
 	default:
 		*DAC0_CH0DATA = IDLE;
 		*DAC0_CH1DATA = IDLE;
 		break;
+	}
+}
+void playsound(int sound){
+int time = *TIMER1_TOP*0.9;			//Comparing with *TIMER1_TOP causes slowdown and instability.
+	switch(sound){
+		case(0):
+			for (int count = 1; count <= shoot[0];){
+				if(*TIMER1_CNT >= time){		
+					*DAC0_CH0DATA = shoot[count];
+					*DAC0_CH1DATA = shoot[count];
+					count++;
+				}
+			}
+			break;
+		case(1):
+			for (int count = 1; count <= coin[0];){
+				if(*TIMER1_CNT >= time){
+					*DAC0_CH0DATA = coin[count];
+					*DAC0_CH1DATA = coin[count];
+					count++;
+				}
+			}
+			break;
+		case(2):
+			for (int count = 1; count <= pacman_eat[0];){
+				if(*TIMER1_CNT >= time){
+					*DAC0_CH0DATA = pacman_eat[count];
+					*DAC0_CH1DATA = pacman_eat[count];
+					count++;
+				}
+			} 
+			break;
+
+		case(3):
+			for (int count = 1; count <= introlength;){
+				if(*TIMER1_CNT >= time){
+					*DAC0_CH0DATA = pacman_intro[count];
+					*DAC0_CH1DATA = pacman_intro[count];
+				count++;
+				}
+			}
+			break; 
+		default:
+			*DAC0_CH0DATA = IDLE;
+			*DAC0_CH1DATA = IDLE;
+			break;
 	}
 }
 /*
