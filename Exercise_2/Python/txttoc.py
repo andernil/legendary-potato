@@ -1,5 +1,10 @@
 from sys import stdin
 
+#Converts exported output from audacity into C array
+
+#Use:
+#python txttotoc.py < sample-data-txt
+
 c_file = open('wololo.c','w')
 
 
