@@ -35,7 +35,7 @@ int main (void)
    * Enable interrupt handling 
    */
   setupNVIC();          //Will not run the while loop coming up.
-  *GPIO_IFS = 1 << 3;	//Play intro and enter sleep-mode after playthrough.
+  *GPIO_IFS = (1<<3);	//Play intro and enter sleep-mode after playthrough.
 }
 
 

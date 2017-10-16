@@ -13,6 +13,7 @@ int count = 1;					//Value for counting
  */
 void selection();
 void sleep();
+void wake();
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
@@ -39,9 +40,9 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 				else{count = 1; go = 0;}
 				break;
 			case(2):
-				if(count < pacman_eat[0]){
-					*DAC0_CH0DATA = pacman_eat[count];
-					*DAC0_CH1DATA = pacman_eat[count];
+				if(count < wololo[0]){
+					*DAC0_CH0DATA = wololo[count];
+					*DAC0_CH1DATA = wololo[count];
 				} 
 				else{count = 1; go = 0;}
 				break;
@@ -95,7 +96,7 @@ void selection (){
 	*GPIO_PA_DOUT = ~(*GPIO_IF << 8);	//Logical shift left 8 bits and invert to match up with output register
 	count = 1;				//Reset count to initial value
 	go = 1;					//Set go to allow for audio playback
-	*SCR = 2;				//Enter sleep-mode 2
+	wake();
 	switch(keys)
 		{
 		case (0b00000001):		//If button 1 or 5
@@ -122,9 +123,17 @@ void selection (){
 			break;
 		}
 }
+void wake (){
+	*CMU_HFPERCLKEN0 |= (1 << 17);	        //Enable DAC clock
+  	*DAC0_CH0CTRL = *DAC0_CH1CTRL = 1;	//Enable left and right audio
+	*SCR = 2;				//Enter sleep-mode 2
+}
+
 void sleep (){
+	*DAC0_CH0CTRL = *DAC0_CH1CTRL = 0;	//Diable left and right audio
 	*DAC0_CH0DATA = IDLE;			
 	*DAC0_CH1DATA = IDLE;	
 	*GPIO_PA_DOUT = ~0;			//Turn off lights
+  	*CMU_HFPERCLKEN0 &= ~(1 << 17);		//Diable DAC clock channels	
 	*SCR = 6;				//Enter deep-sleep
 }

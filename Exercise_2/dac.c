@@ -17,7 +17,7 @@ setupDAC ()
    * timer interrupt 
    */
   *CMU_HFPERCLKEN0 |= (1 << 17);	//Enable DAC clock
-  *DAC0_CTRL = 0x50010;		//Prescaled DAC clock
+  *DAC0_CTRL = 0x50010;			//Prescaled DAC clock
   *DAC0_CH0CTRL = *DAC0_CH1CTRL = 1;	//Enable left and right audio channels
   //*DAC0_CTRL |= (1<<1);
 }
