@@ -31,8 +31,3 @@ c_file.write("\n};")
 
 c_file.close()
 
-
-
-
-#for sample in wave_file.readframes(wave_file.getnframes()):
-
