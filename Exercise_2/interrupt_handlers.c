@@ -5,7 +5,6 @@
 #define IDLE 0x7FF
 
 unsigned int introlength = 185960;		//Workaround to use the intro
-int go = 0;					//Value used to start playing a song
 int sound = 0;					//Value for sound selection
 int count = 1;					//Value for counting 
 /*
@@ -21,49 +20,42 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	 * TODO feed new samples to the DAC remember to clear the pending
 	 * interrupt by writing 1 to TIMER1_IFC 
 	*/
-	*TIMER1_IFC = 1;							//Clear timer interrupts
-	if (go == 1){
-		*SCR = 2;							//Enter higher level sleep-mode
-		switch(sound){	
-			case(0):						
-				if(count < shoot[0]){				//Play audio until the counter reaches the amount of samples the audio file has
-					*DAC0_CH0DATA = shoot[count];
-					*DAC0_CH1DATA = shoot[count];
-				}
-				else{count = 1; go = 0;}			//After the audio is played, count and go are reset.
-				break;
-			case(1):
-				if(count < coin[0]){
-					*DAC0_CH0DATA = coin[count];
-					*DAC0_CH1DATA = coin[count];
-				}
-				else{count = 1; go = 0;}
-				break;
-			case(2):
-				if(count < wololo[0]){
-					*DAC0_CH0DATA = wololo[count];
-					*DAC0_CH1DATA = wololo[count];
-				} 
-				else{count = 1; go = 0;}
-				break;
-
-			case(3):
-				if(count < introlength){
-					*DAC0_CH0DATA = pacman_intro[count];
-					*DAC0_CH1DATA = pacman_intro[count];
-				}
-				else{count = 1; go = 0;}
-				break; 
-			default:
-				count = 1;
-				go = 0;
-				break;
-		}
+	*TIMER1_IFC = 1;						//Clear timer interrupts
+	switch(sound){	
+		case(0):						
+			if(count < shoot[0]){				//Play audio until the counter reaches the amount of samples the audio file has
+				*DAC0_CH0DATA = shoot[count];
+				*DAC0_CH1DATA = shoot[count];
+			}
+			else{sound = -1;}			//After the audio is played, count and go are reset.
+			break;
+		case(1):
+			if(count < coin[0]){
+				*DAC0_CH0DATA = coin[count];
+				*DAC0_CH1DATA = coin[count];
+			}
+			else{sound = -1;}
+			break;
+		case(2):
+			if(count < wololo[0]){
+				*DAC0_CH0DATA = wololo[count];
+				*DAC0_CH1DATA = wololo[count];
+			} 
+			else{sound = -1;}
+			break;
+		case(3):
+			if(count < introlength){
+				*DAC0_CH0DATA = pacman_intro[count];
+				*DAC0_CH1DATA = pacman_intro[count];
+			}
+			else{sound = -1;}
+			break; 
+		default:
+			sleep(); 					//Function for entering sleep (set IDLE output, enter deep-slepe)
+			break;
 	}
-	else{
-		sleep();							//Function for entering sleep (set IDLE output, enter deep-slepe)
-	}
-	count++;								//Increment count every interrupt-cycle
+	
+	count++;							//Increment count every interrupt-cycle
 }
 
 /*
@@ -95,7 +87,6 @@ void selection (){
 	uint8_t keys = *GPIO_IF;		//Get what key is pressed from the interrupt register
 	*GPIO_PA_DOUT = ~(*GPIO_IF << 8);	//Logical shift left 8 bits and invert to match up with output register
 	count = 1;				//Reset count to initial value
-	go = 1;					//Set go to allow for audio playback
 	wake();
 	switch(keys)
 		{
@@ -116,10 +107,7 @@ void selection (){
 			sound = 3;	
 			break;
 		default:
-			*DAC0_CH0DATA = IDLE;	//Set DAC output to Vcc/2
-			*DAC0_CH1DATA = IDLE;
-			go = 0;			//Disable audio playback
-			sound = 5;		//Assign a non-valid value to sound so that no sound is pre-selected.
+			sound = -1;		//Assign a non-valid value to sound so that no sound is pre-selected.
 			break;
 		}
 }
