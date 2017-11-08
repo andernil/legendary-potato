@@ -55,7 +55,8 @@ struct class *my_class;
 struct fasync_struct* async_queue;
 
 
-static int driver_fasync(int fd, struct file* filp, int mode) {
+static int driver_fasync(int fd, struct file* filp, int mode) 
+{
     return fasync_helper(fd, filp, mode, &async_queue);
 }
 
