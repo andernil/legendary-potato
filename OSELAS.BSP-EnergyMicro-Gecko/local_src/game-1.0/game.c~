@@ -16,7 +16,7 @@ FILE* driver;
 void sigio_handler(int signo)
 {
     printf("Signal nr.: %d\n", signo);
-    printf("knapp: %d\n",fgetc(driver));
+    printf("knapp: %d\n",fgetc(device));
     
 }
 
