@@ -92,7 +92,6 @@ irqreturn_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs){
 //Startup/Initalize function
 static int __init template_init(void)
 {
-    printk("Dette er en nyere text7\n");
 
     if(0>alloc_chrdev_region(&dev, 0, 1, DRIVER_NAME)){
 	printk("Error making major and minor numbers\n");
@@ -156,7 +155,7 @@ static int __init template_init(void)
     request_irq(GPIO_ODD_IRQ_LINE, (irq_handler_t)irq_handler, 0, DRIVER_NAME, &my_cdev);
 
 
-   printk("yayy\n");
+   printk("Gamepad driver started\n");
    return 0;
 }
 
