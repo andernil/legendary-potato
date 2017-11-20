@@ -15,14 +15,12 @@ FILE* driver;
 
 void sigio_handler(int signo)
 {
-    printf("Signal nr.: %d\n", signo);
     printf("knapp: %d\n",fgetc(driver));
-    
 }
 
 int main(int argc, char *argv[])
 {
-	printf("Init gamepad  5\n");
+	printf("Game starting\n");
 	
 	driver = fopen("/dev/driver-gamepad", "rb");
 
@@ -39,7 +37,7 @@ int main(int argc, char *argv[])
     	fcntl(fileno(driver), F_SETFL, oflags | FASYNC);
 	
 	while(1){
-	    printf("Test  2\n");
+	    printf("\n");
 	    pause();
 	};
 
