@@ -7,6 +7,14 @@ cat /etc/issue
 mount -t proc proc /proc 2>/dev/null
 mount -t sysfs sys /sys
 
-
 export PATH=$PATH:/sbin:/usr/bin:/bin
+
+echo 0 > /sys/class/graphics/fbcon/cursor_blink
+echo Starting gamepad driver
+modprobe driver-gamepad
+echo Starting game
+game
+
 exec /bin/sh
+
+
