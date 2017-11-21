@@ -12,7 +12,6 @@
 
 // linux kernels
 #include <linux/kernel.h>
-#include <linux/module.h>
 #include <linux/timer.h>
 #include <linux/fb.h>
 
@@ -38,7 +37,7 @@ static int fbfd;
 void sigio_handler(int signo)
 {
     snake_head.dir = (char) fgetc(driver);
-    if (snake_tail.list==snake_head.list){
+    if (unused_items==NULL){
       snake_head.list->next = (void*) malloc(sizeof(dir_list));
       snake_head.list = snake_head.list->next;
       snake_head.list->dir = snake_head.dir;
@@ -47,7 +46,11 @@ void sigio_handler(int signo)
     } else {
       snake_head.list->next = unused_items;
       snake_head.list = unused_items;
-      unused_items = unused_items->next;
+      if (unused_items->next==snake_tail.list){
+        unused_items = NULL;
+      } else {
+        unused_items = unused_items->next;
+      }
       snake_head.list->dir = snake_head.dir;
       snake_head.list->count = 0;
       snake_head.list->next = NULL;
@@ -90,6 +93,8 @@ void screen_timer_handler(unsigned long data){
     update_pos(snake_tail.dir,&snake_tail.copyarea->dx, \
                &snake_tail.copyarea->dy,&snake_tail.pos);
     if (snake_tail.list->count==0){
+      if (unused_items==NULL)
+        unused_items = snake_tail.list;
       snake_tail.list=snake_tail.list->next;
     } else {
       snake_tail.list->count--;
