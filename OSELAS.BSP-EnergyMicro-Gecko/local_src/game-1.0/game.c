@@ -18,20 +18,20 @@ FILE* driver;
 
 short board[BOARD_WIDTH*BOARD_HEIGHT];
 
-struct fb_copyarea head_rect;
-struct fb_copyarea tail_rect;
-struct fb_copyarea fruit_rect;
+fb_copyarea head_rect;
+fb_copyarea tail_rect;
+fb_copyarea fruit_rect;
 
 snake snake_head;
 snake snake_tail;
 
-dir_list* unused_items;
+dir_list* unused_items = NULL;
 
 void sigio_handler(int signo)
 {
     snake_head.dir = (char) fgetc(driver);
-    if (snake_tail.list==unused_items){
-      snake_head.list->next = malloc(sizeof(dir_list))
+    if (snake_tail.list==snake_head.list){
+      snake_head.list->next = (void*) malloc(sizeof(dir_list));
       snake_head.list = snake_head.list->next;
       snake_head.list->dir = snake_head.dir;
       snake_head.list->count = 0;
@@ -39,7 +39,7 @@ void sigio_handler(int signo)
     } else {
       snake_head.list->next = unused_items;
       snake_head.list = unused_items;
-      unused_items = unused_items.next;
+      unused_items = unused_items->next;
       snake_head.list->dir = snake_head.dir;
       snake_head.list->count = 0;
       snake_head.list->next = NULL;
@@ -56,17 +56,38 @@ int main(int argc, char *argv[])
 		printf("Driver error\n");
 		exit(EXIT_SUCCESS);
 	}
-	
+
 	// init: set start position
 	// init: place snake & set tail position
+  snake_head.list = (void*) malloc(sizeof(dir_list));
+  snake_head.list->count = 5;
+  snake_head.list->dir = 4;
+  snake_head.list->next = NULL;
+  snake_tail.list = unused_items;
+  snake_head.move = 0;
+  snake_tail.move = 0;
+  snake_head.dir = 4;
+  snake_tail.dir = 4;
+  snake_head.x_pos = START_X + 2;
+  snake_head.y_pos = START_Y;
+  snake_tail.x_pos = START_X - 2;
+  snake_head.y_pos = START_Y;
+  snake_head.copyarea = &head_rect;
+  snake_tail.copyearea = &tail_rect;
+  snake_head.pos[snake_head.x_pos+snake_head.y_pos*BOARD_WIDTH];
+  snake_tail.pos[snake_tail.x_pos+snake_tail.y_pos*BOARD_WIDTH];
 
 	// init: set rect sizes
-	head_rect.width=3;
-	head_rect.height=3;
-	tail_rect.width=3;
-	tail_rect.height=3;
-	fruit_rect.width=3;
-	fruit_rect.height=3;
+  head_rect.dx = snake_head.x_pos;
+  head_rect.dy = snake_head.y_pos;
+	head_rect.width = 3;
+	head_rect.height = 3;
+  tail_rect.dx = snake_tail.x_pos;
+  tail_rect.dy = snake_tail.y_pos;
+	tail_rect.width = 3;
+	tail_rect.height = 3;
+	fruit_rect.width = 3;
+	fruit_rect.height = 3;
 
 	signal(SIGIO, &sigio_handler);
 	fcntl(fileno(driver), F_SETOWN, getpid());
