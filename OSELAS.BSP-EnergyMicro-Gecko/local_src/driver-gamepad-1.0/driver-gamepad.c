@@ -27,12 +27,15 @@
 #define DRIVER_NAME "driver-gamepad"
 
 /*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
+SW1 - left  - 1
+SW2 - up    - 2
+SW3 - right - 4
+SW4 - down  - 8
+
+SW5 - left  - 16
+SW6 - up    - 32
+SW7 - right - 64
+SW8 - down  - 128
  */
 
 static int driver_fasync(int, struct file*, int);
