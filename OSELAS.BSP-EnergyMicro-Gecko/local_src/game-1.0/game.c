@@ -59,20 +59,40 @@ void sigio_handler(int signo)
 void update_pos(char dir, short* x, short *y, short **pos){
   switch (dir){
     case 1:
-      (*x)--;
-      (*pos)--;
+      if (x == 0){
+        (*x) = (BOARD_WIDTH-1);
+        (*pos)+=(BOARD_WIDTH-1);
+      } else {
+        (*x)--;
+        (*pos)--;
+      }
       break;
     case 2:
-      (*y)--;
-      (*pos)-=BOARD_WIDTH;
+      if (y == 0){
+        (*x) = (BOARD_HEIGHT-1);
+        (*pos)+= (BOARD_HEIGHT-1)*BOARD_WIDTH;
+      } else {
+        (*y)--;
+        (*pos)-=BOARD_WIDTH;
+      }
       break;
     case 4:
-      (*x)++;
-      (*pos)++;
+      if (x == (BOARD_WIDTH-1)){
+        (*x) = 0;
+        (*pos)-=(BOARD_WIDTH-1);
+      } else {
+        (*x)++;
+        (*pos)++;
+      }
       break;
     case 8:
-      (*y)++;
-      (*pos)+=BOARD_WIDTH;
+      if (y == BOARD_HEIGHT-1) {
+        (*y) = 0;
+        (*pos)-= (BOARD_HEIGHT-1)*BOARD_WIDTH;
+      } else {
+        (*y)++;
+        (*pos)+=BOARD_WIDTH;
+      }
       break;
     default:
       printf("Error: Dir variable is : %d\n",dir);
