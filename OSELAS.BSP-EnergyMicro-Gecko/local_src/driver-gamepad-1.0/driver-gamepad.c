@@ -54,6 +54,7 @@ struct cdev my_cdev;
 struct class *my_class;
 struct fasync_struct* async_queue;
 
+static int Button_pressed;
 
 static int driver_fasync(int fd, struct file* filp, int mode) {
     return fasync_helper(fd, filp, mode, &async_queue);
@@ -62,7 +63,7 @@ static int driver_fasync(int fd, struct file* filp, int mode) {
 static ssize_t driver_read(struct file *filp, char __user *buff, size_t count, loff_t *offp){
 //    printk(KERN_INFO "read driver\n");
     uint32_t buffer = ioread32(GPIO_PC_DIN);
-    copy_to_user(buff, &buffer, 1);
+    copy_to_user(buff, &Button_pressed, 1);
     return 1;
 };
 
@@ -80,6 +81,7 @@ static int driver_release(struct inode* inode, struct file* filp) {
 //Interupt handler
 irqreturn_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs){
     //printk(KERN_ALERT "Handling GPIO interrupt\n");
+    Button_pressed = *GPIO_IF;
     iowrite32(ioread32(GPIO_IF), GPIO_IFC);
 
     if(async_queue){
