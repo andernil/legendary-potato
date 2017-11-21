@@ -62,7 +62,6 @@ static int driver_fasync(int fd, struct file* filp, int mode) {
 
 static ssize_t driver_read(struct file *filp, char __user *buff, size_t count, loff_t *offp){
 //    printk(KERN_INFO "read driver\n");
-    uint32_t buffer = ioread32(GPIO_PC_DIN);
     copy_to_user(buff, &Button_pressed, 1);
     return 1;
 };
