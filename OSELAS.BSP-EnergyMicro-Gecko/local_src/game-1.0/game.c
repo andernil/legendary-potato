@@ -29,8 +29,8 @@ dir_list* unused_items;
 
 void sigio_handler(int signo)
 {
-    printf("Signal nr.: %d\n", signo);
     printf("knapp: %d\n",fgetc(driver));
+<<<<<<< HEAD
     snake_head.dir = 
     if (snake_tail.list==unused_items){
       snake_head.list->next = malloc(sizeof(dir_list))
@@ -47,11 +47,13 @@ void sigio_handler(int signo)
       snake_head.list->next = NULL;
     }
     
+=======
+>>>>>>> ca40420c3891ac3567ead19276e3003d475bb696
 }
 
 int main(int argc, char *argv[])
 {
-	printf("Init gamepad  5\n");
+	printf("Game starting\n");
 	
 	driver = fopen("/dev/driver-gamepad", "rb");
 
@@ -78,7 +80,7 @@ int main(int argc, char *argv[])
     	fcntl(fileno(driver), F_SETFL, oflags | FASYNC);
 	
 	while(1){
-	    printf("Test  2\n");
+	    printf("\n");
 	    pause();
 	};
 
