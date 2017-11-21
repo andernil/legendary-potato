@@ -21,8 +21,6 @@ typedef struct fb_copyarea fb_copyarea;
 
 typedef struct {
   short* pos;
-  short x_pos;
-  short y_pos;
   fb_copyarea* copyarea;
   dir_list* list;
   char move; // move when 0, counts down
