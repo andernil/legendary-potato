@@ -29,9 +29,7 @@ dir_list* unused_items;
 
 void sigio_handler(int signo)
 {
-    printf("knapp: %d\n",fgetc(driver));
-<<<<<<< HEAD
-    snake_head.dir = 
+    snake_head.dir = (char) fgetc(driver);
     if (snake_tail.list==unused_items){
       snake_head.list->next = malloc(sizeof(dir_list))
       snake_head.list = snake_head.list->next;
@@ -46,9 +44,6 @@ void sigio_handler(int signo)
       snake_head.list->count = 0;
       snake_head.list->next = NULL;
     }
-    
-=======
->>>>>>> ca40420c3891ac3567ead19276e3003d475bb696
 }
 
 int main(int argc, char *argv[])
