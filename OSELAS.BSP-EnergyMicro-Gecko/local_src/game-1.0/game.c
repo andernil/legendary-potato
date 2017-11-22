@@ -48,6 +48,7 @@ void sigio_handler(int signo)
 	  case 128: button_return = 8;
 		break;
           default: printf("Invalid button return : %d\n",button_return);
+     		   return 0;
  	}
     }
 
@@ -129,7 +130,7 @@ void timer_handler(int signo){
 
     if (*snake_head.pos == -5888) {
        printf("You got good!\n");	
-       snake_tail.move+=5;
+       snake_tail.move+=15;
        remove_fruit();
        draw_fruit();
     }
@@ -244,11 +245,7 @@ int main(int argc, char *argv[])
   printf("Game starting, hello snake world\n");
 	
   driver = fopen("/dev/driver-gamepad", "rb");
-  timer = fopen("/dev/timer-module", "rb+");
-  
-
-
-
+  timer = fopen("/dev/timer-module", "wb");
 
   fbfd = open("/dev/fb0", O_RDWR, 0);
   board = (short*) mmap(NULL, BOARD_WIDTH * BOARD_HEIGHT, PROT_READ|PROT_WRITE, MAP_SHARED, fbfd, 0);
@@ -291,7 +288,7 @@ int main(int argc, char *argv[])
   oflags = fcntl(fileno(timer), F_GETFL);
   fcntl(fileno(timer), F_SETFL, oflags | FASYNC);
 
-
+  fputc(50, timer); 
   while(1){
 	    pause();
   };

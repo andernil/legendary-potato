@@ -36,7 +36,7 @@ static dev_t my_dev;
 struct cdev my_cdev;
 struct class *my_class;
 
-static int delay_time = 100;
+static int delay_time = 30;
 
 
 static int driver_fasync(int, struct file*, int);
@@ -70,7 +70,7 @@ static ssize_t driver_write(struct file* filp, char* __user buff, size_t count, 
     unsigned int *kbuf;
 
     copy_from_user(kbuf, buff, 1);
-    printk(KERN_INFO "New delay: %d",*kbuf);
+    printk(KERN_INFO "New gamespeed: %d",*kbuf);
     delay_time = *kbuf;
     return 1;
 }
@@ -111,13 +111,13 @@ static int __init timer_init(void)
         return -1;
     }
  
-  printk("Timer hello world\n");
- 
+  printk(KERN_INFO "Timer hello world\n");
+  printk(KERN_INFO "Gamespeed: %d",delay_time); 
   // my_timer.function, my_timer.data
   setup_timer( &my_timer, my_timer_callback, delay_time );
  
-  printk( "Starting timer to fire in 200ms (%ld)\n", jiffies );
-  ret = mod_timer( &my_timer, jiffies + msecs_to_jiffies(200) );
+  printk( "Starting timer to fire in %d ms (%ld)\n", delay_time,jiffies );
+  ret = mod_timer( &my_timer, jiffies + msecs_to_jiffies(delay_time) );
   if (ret) printk("Error in mod_timer\n");
   return 0;
 }
