@@ -140,6 +140,8 @@ void timer_handler(int signo){
       	clear_board();
         draw_fruit();
       	inizialise_snake();
+        update_pos(snake_head.dir,&snake_head.copyarea->dx, \
+                   &snake_head.copyarea->dy,&snake_head.pos);
     }
     *snake_head.pos = 0x0F10;
     snake_head.list->count++;
