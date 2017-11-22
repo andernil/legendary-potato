@@ -123,14 +123,23 @@ void update_pos(char dir, short* x, short *y, short **pos){
 
 void timer_handler(int signo){
   if (snake_head.move==0){
+
     update_pos(snake_head.dir,&snake_head.copyarea->dx, \
                &snake_head.copyarea->dy,&snake_head.pos);
+
+    if (*snake_head.pos == -5888) {
+       printf("You got good!\n");	
+       snake_tail.move=5;
+       remove_fruit();
+       draw_fruit();
+    }
+
     if (*snake_head.pos == 0x0F10){
 	printf("You died, get good!!!!\n");
       	clear_board();
+        draw_fruit();
       	//inizialise_snake();
-    } 
-
+    }
     *snake_head.pos = 0x0F10;
     snake_head.list->count++;
     ioctl(fbfd,0x4680,snake_head.copyarea);
@@ -155,6 +164,35 @@ void timer_handler(int signo){
   }
 }
 
+int draw_fruit(){
+  printf("Drawing fruit\n");
+  short* fruit_pos;
+  fruit_rect.dx = (rand() % (BOARD_WIDTH  - 3));
+  fruit_rect.dy = (rand() % (BOARD_HEIGHT - 3));
+
+  fruit_pos = board + fruit_rect.dx + (fruit_rect.dy * BOARD_WIDTH);
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+
+  ioctl(fbfd,0x4680,&fruit_rect);
+  return 0;
+}
+
+int remove_fruit(){
+  short* fruit_pos;
+  fruit_pos = board + fruit_rect.dx + (fruit_rect.dy * BOARD_WIDTH);
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+  ioctl(fbfd,0x4680,&fruit_rect);
+  return 0;
+}
+
 int clear_board()
 {
   
@@ -169,7 +207,7 @@ int clear_board()
   return 0;
 }
 
-int inizialise_snake(){
+void inizialise_snake(){
   // init: draw snake
 
   head_rect.dy = START_Y;
@@ -179,6 +217,9 @@ int inizialise_snake(){
   tail_rect.dy = START_Y;
   tail_rect.width = 1;
   tail_rect.height = 1;
+
+
+//setRandomSeed(seed);
   fruit_rect.width = 3;
   fruit_rect.height = 3;
 
@@ -223,6 +264,7 @@ int main(int argc, char *argv[])
 
   inizialise_snake();
   clear_board();
+  draw_fruit();
 
   signal(SIGIO, &sigio_handler);
   fcntl(fileno(driver), F_SETOWN, getpid());
@@ -235,7 +277,7 @@ int main(int argc, char *argv[])
   
   while(1){
 	    pause();
-	};
+  };
 
 	exit(EXIT_SUCCESS);
 }
