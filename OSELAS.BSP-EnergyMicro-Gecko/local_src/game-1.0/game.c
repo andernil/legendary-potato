@@ -35,47 +35,37 @@ static int last_button_return = 4;
 void sigio_handler(int signo)
 {
 
-    int button_return;
-    button_return = fgetc(driver);
-    if (button_return > 8){
-	switch(button_return){
-	  case 16: button_return = 1;
-		break;
-	  case 32: button_return = 2;
-		break;
-	  case 64: button_return = 4;
-		break;
-	  case 128: button_return = 8;
-		break;
-          default: printf("Invalid button return : %d\n",button_return);
-     		   return 0;
- 	}
-    }
+  int button_return;
+  button_return = fgetc(driver);
+  // Can use either set of 4 buttons.
+  if (button_return > 8)
+    button_return << 4;
 
-//    printf("button_return: %d last_button_return %d \n", button_return,last_button_return);
+    //printf("button_return: %d last_button_return %d \n", button_return,last_button_return);
+    // if the button is the same, it is a timer call
     if (button_return == last_button_return || button_return == 0){
-	timer_handler(0);
-    }else{
-    snake_head.dir = button_return;
-    if (unused_items==NULL){
-      snake_head.list->next = (void*) malloc(sizeof(dir_list));
-      snake_head.list->dir = snake_head.dir;
-      snake_head.list = snake_head.list->next;
-      snake_head.list->count = 0;
-      snake_head.list->next = NULL;
+	    timer_handler(0);
     } else {
-      snake_head.list->next = unused_items;
-      snake_head.list->dir = snake_head.dir;
-      snake_head.list = unused_items;
-      if (unused_items->next==snake_tail.list){
-        unused_items = NULL;
-      } else {
-        unused_items = unused_items->next;
+      // set the new direction of the snake
+      snake_head.dir = button_return;
+      if (unused_items==NULL){ // no old elements, allocate new
+        snake_head.list->next = (void*) malloc(sizeof(dir_list));
+        snake_head.list->dir = snake_head.dir;
+        snake_head.list = snake_head.list->next;
+      } else { // reuse old elements of the list
+        snake_head.list->next = unused_items;
+        snake_head.list->dir = snake_head.dir;
+        snake_head.list = unused_items;
+        // no more unused elements, set it to NULL
+        if (unused_items->next==snake_tail.list){
+          unused_items = NULL;
+        } else {
+          unused_items = unused_items->next;
+        }
       }
       snake_head.list->count = 0;
       snake_head.list->next = NULL;
-    }
-    last_button_return = button_return;
+      last_button_return = button_return;
     }
 }
 
@@ -147,7 +137,7 @@ void timer_handler(int signo){
     *snake_head.pos = 0x0F10;
     snake_head.list->count++;
     ioctl(fbfd,0x4680,snake_head.copyarea);
-  } else {
+  } else { // the head is frozen, count down till it moves
     snake_head.move--;
   }
   if (snake_tail.move==0){
@@ -163,7 +153,7 @@ void timer_handler(int signo){
                &snake_tail.copyarea->dy,&snake_tail.pos);
     *snake_tail.pos = 0;
     ioctl(fbfd,0x4680,snake_tail.copyarea);
-  } else {
+  } else { // the tail is frozen, cont down till it moves
     snake_tail.move--;
   }
 }
@@ -212,20 +202,13 @@ int clear_board()
 }
 
 void inizialise_snake(){
-  // init: draw snake
-
-
-
+  // Set the head and tail start positions
   head_rect.dy = START_Y;
   head_rect.dx = START_X + SNAKE_MIN_LENGTH/2;
-	// init: finish copyarea
   tail_rect.dx = START_X - SNAKE_MIN_LENGTH/2;
   tail_rect.dy = START_Y;
 
-
-//setRandomSeed(seed);
-
-	// init: set tail & head position
+	// set all variables that needs to reset on death
   snake_head.list->count = SNAKE_MIN_LENGTH-1;
   snake_head.list->dir = 4;
   snake_tail.list = snake_head.list;
@@ -248,6 +231,7 @@ int main(int argc, char *argv[])
   timer = fopen("/dev/timer-module", "wb");
 
   fbfd = open("/dev/fb0", O_RDWR, 0);
+  // memory map the board
   board = (short*) mmap(NULL, BOARD_WIDTH * BOARD_HEIGHT, PROT_READ|PROT_WRITE, MAP_SHARED, fbfd, 0);
 
   if (driver == NULL) {
@@ -279,6 +263,7 @@ int main(int argc, char *argv[])
   clear_board();
   draw_fruit();
 
+  // init the gamepad and timer handler
   signal(SIGIO, &sigio_handler);
   fcntl(fileno(driver), F_SETOWN, getpid());
   long oflags = fcntl(fileno(driver), F_GETFL);
