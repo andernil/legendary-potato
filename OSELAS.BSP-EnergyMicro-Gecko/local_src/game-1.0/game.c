@@ -167,29 +167,16 @@ void timer_handler(int signo){
 int draw_fruit(){
   printf("Drawing fruit\n");
   short* fruit_pos;
-  fruit_rect.dx = (rand() % (BOARD_WIDTH  - 3));
-  fruit_rect.dy = (rand() % (BOARD_HEIGHT - 3));
-
-  fruit_pos = board + fruit_rect.dx + (fruit_rect.dy * BOARD_WIDTH);
-  *fruit_pos = 0xE900;
-  fruit_pos++;
-  *fruit_pos = 0xE900;
-  fruit_pos++;
-  *fruit_pos = 0xE900;
+  fruit_rect.dx = (rand() % (BOARD_WIDTH  - FRUIT_SIZE));
+  fruit_rect.dy = (rand() % (BOARD_HEIGHT - FRUIT_SIZE));
   
-  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+1) * BOARD_WIDTH);
-  *fruit_pos = 0xE900;
-  fruit_pos++;
-  *fruit_pos = 0xE900;
-  fruit_pos++;
-  *fruit_pos = 0xE900;
-  
-  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+2) * BOARD_WIDTH);
-  *fruit_pos = 0xE900;
-  fruit_pos++;
-  *fruit_pos = 0xE900;
-  fruit_pos++;
-  *fruit_pos = 0xE900;
+  int i, j;
+  for(i=0; i < FRUIT_SIZE; i++){
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy + i) * BOARD_WIDTH);
+    for(j=0; j < FRUIT_SIZE; j++){
+      *(fruit_pos+j) = 0xE900;
+    }
+  }
 
   ioctl(fbfd,0x4680,&fruit_rect);
   return 0;
@@ -197,26 +184,14 @@ int draw_fruit(){
 
 int remove_fruit(){
   short* fruit_pos;
-  fruit_pos = board + fruit_rect.dx + (fruit_rect.dy * BOARD_WIDTH);
-  *fruit_pos = 0;
-  fruit_pos++;
-  *fruit_pos = 0;
-  fruit_pos++;
-  *fruit_pos = 0;
-
-  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+1) * BOARD_WIDTH);
-  *fruit_pos = 0;
-  fruit_pos++;
-  *fruit_pos = 0;
-  fruit_pos++;
-  *fruit_pos = 0;
-
-  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+2) * BOARD_WIDTH);
-  *fruit_pos = 0;
-  fruit_pos++;
-  *fruit_pos = 0;
-  fruit_pos++;
-  *fruit_pos = 0;
+  
+  int i, j;
+  for(i=0; i < FRUIT_SIZE; i++){
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy + i) * BOARD_WIDTH);
+    for(j=0; j < FRUIT_SIZE; j++){
+      *(fruit_pos+j) = 0;
+    }
+  }
 
   ioctl(fbfd,0x4680,&fruit_rect);
   return 0;
@@ -249,8 +224,8 @@ void inizialise_snake(){
 
 
 //setRandomSeed(seed);
-  fruit_rect.width = 3;
-  fruit_rect.height = 3;
+  fruit_rect.width = FRUIT_SIZE;
+  fruit_rect.height = FRUIT_SIZE;
 
   head_rect.width = 1;
   head_rect.height = 1;

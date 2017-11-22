@@ -9,7 +9,7 @@
 #define START_X ((BOARD_WIDTH)/2)
 #define START_Y ((BOARD_HEIGHT)/2)
 #define SNAKE_MIN_LENGTH 5
-#define SNAKE_MAX_LENGTH 100
+#define SNAKE_MAX_LENGTH 1000
 
 typedef struct {
   short count;
