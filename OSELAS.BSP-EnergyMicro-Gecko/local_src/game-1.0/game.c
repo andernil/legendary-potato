@@ -79,7 +79,7 @@ void update_pos(char dir, short* x, short *y, short **pos){
       break;
     case 2:
       if (*y == 0){
-        (*x) = (BOARD_HEIGHT-1);
+        (*y) = (BOARD_HEIGHT-1);
         (*pos) += (BOARD_HEIGHT-1)*BOARD_WIDTH;
       } else {
         (*y)--;
@@ -125,9 +125,9 @@ void timer_handler(int signo){
         unused_items = snake_tail.list;
       snake_tail.dir=snake_tail.list->dir;
       snake_tail.list=snake_tail.list->next;
-    } else {
-      snake_tail.list->count--;
-    }
+    } 
+    snake_tail.list->count--;
+  
     update_pos(snake_tail.dir,&snake_tail.copyarea->dx, \
                &snake_tail.copyarea->dy,&snake_tail.pos);
     *snake_tail.pos = 0;
@@ -153,8 +153,8 @@ int main(int argc, char *argv[])
 		exit(EXIT_SUCCESS);
 	}
   // init: draw snake
-	head_rect.width = 3;
-	head_rect.height = 3;
+	head_rect.width = 1;
+	head_rect.height = 1;
   head_rect.dy = START_Y;
   int i;
   for (i=0; i<SNAKE_MIN_LENGTH;i++){
@@ -164,8 +164,8 @@ int main(int argc, char *argv[])
 	// init: finish copyarea
   tail_rect.dx = START_X - 2;
   tail_rect.dy = START_Y;
-	tail_rect.width = 3;
-	tail_rect.height = 3;
+	tail_rect.width = 1;
+	tail_rect.height = 1;
 	fruit_rect.width = 3;
 	fruit_rect.height = 3;
 

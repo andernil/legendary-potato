@@ -36,7 +36,7 @@ static dev_t my_dev;
 struct cdev my_cdev;
 struct class *my_class;
 
-static int delay_time = 200;
+static int delay_time = 100;
 
 
 static int driver_fasync(int, struct file*, int);

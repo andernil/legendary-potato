@@ -36,7 +36,7 @@ static dev_t my_dev;
 struct cdev my_cdev;
 struct class *my_class;
 
-static int delay_time = 200;
+static int delay_time = 500;
 
 
 static int driver_fasync(int, struct file*, int);
@@ -85,7 +85,7 @@ void my_timer_callback( unsigned long data )
   mod_timer(&my_timer, jiffies + msecs_to_jiffies(delay_time));
 //  printk( "my_timer_callback called (%ld).\n", jiffies );
   if(async_queue){
-	kill_fasync(&async_queue, SIGPOLL, POLL_IN);
+	kill_fasync(&async_queue, SIGIO, POLL_IN);
   }  
 }
 
