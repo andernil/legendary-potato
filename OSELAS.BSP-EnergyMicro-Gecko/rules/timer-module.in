@@ -1,0 +1,8 @@
+## SECTION=project_specific
+
+config TIMER_MODULE
+	tristate
+	select KERNEL
+	prompt "timer-module"
+	help
+	  FIXME

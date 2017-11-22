@@ -39,7 +39,7 @@ void sigio_handler(int signo)
   button_return = fgetc(driver);
   // Can use either set of 4 buttons.
   if (button_return > 8)
-    button_return >> 4;
+    button_return >>= 4;
 
     //printf("button_return: %d last_button_return %d \n", button_return,last_button_return);
     // if the button is the same, it is a timer call
