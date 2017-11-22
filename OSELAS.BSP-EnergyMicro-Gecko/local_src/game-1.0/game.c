@@ -129,7 +129,7 @@ void timer_handler(int signo){
 
     if (*snake_head.pos == -5888) {
        printf("You got good!\n");	
-       snake_tail.move=5;
+       snake_tail.move+=5;
        remove_fruit();
        draw_fruit();
     }
@@ -203,10 +203,6 @@ int clear_board()
   printf("Clearing board\n");
   memset(board,0,BOARD_WIDTH*BOARD_HEIGHT*sizeof(short)); 
   
-  board_rect.width = BOARD_WIDTH;
-  board_rect.height = BOARD_HEIGHT;
-  board_rect.dx = 0;
-  board_rect.dy = 0;
   ioctl(fbfd,0x4680,&board_rect);
   return 0;
 }
@@ -219,28 +215,18 @@ void inizialise_snake(){
 	// init: finish copyarea
   tail_rect.dx = START_X - SNAKE_MIN_LENGTH/2;
   tail_rect.dy = START_Y;
-  tail_rect.width = 1;
-  tail_rect.height = 1;
 
 
 //setRandomSeed(seed);
-  fruit_rect.width = FRUIT_SIZE;
-  fruit_rect.height = FRUIT_SIZE;
 
-  head_rect.width = 1;
-  head_rect.height = 1;
 	// init: set tail & head position
-  snake_head.list = (void*) malloc(sizeof(dir_list));
   snake_head.list->count = SNAKE_MIN_LENGTH-1;
   snake_head.list->dir = 4;
-  snake_head.list->next = NULL;
   snake_tail.list = snake_head.list;
   snake_head.move = 0;
   snake_tail.move = 0;
   snake_head.dir = 4;
   snake_tail.dir = 4;
-  snake_head.copyarea = &head_rect;
-  snake_tail.copyarea = &tail_rect;
   snake_head.pos = board + head_rect.dx + head_rect.dy * BOARD_WIDTH;
   snake_tail.pos = board + tail_rect.dx + tail_rect.dy * BOARD_WIDTH;
 }
@@ -266,6 +252,20 @@ int main(int argc, char *argv[])
   }
 
 
+  board_rect.width = BOARD_WIDTH;
+  board_rect.height = BOARD_HEIGHT;
+  board_rect.dx = 0;
+  board_rect.dy = 0;
+  fruit_rect.width = FRUIT_SIZE;
+  fruit_rect.height = FRUIT_SIZE;
+  tail_rect.width = 1;
+  tail_rect.height = 1;
+  head_rect.width = 1;
+  head_rect.height = 1;
+  snake_head.copyarea = &head_rect;
+  snake_tail.copyarea = &tail_rect;
+  snake_head.list = (void*) malloc(sizeof(dir_list));
+  snake_head.list->next = NULL;
   inizialise_snake();
   clear_board();
   draw_fruit();
