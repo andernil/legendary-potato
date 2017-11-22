@@ -176,6 +176,20 @@ int draw_fruit(){
   *fruit_pos = 0xE900;
   fruit_pos++;
   *fruit_pos = 0xE900;
+  
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+1) * BOARD_WIDTH);
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+2) * BOARD_WIDTH);
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
 
   ioctl(fbfd,0x4680,&fruit_rect);
   return 0;
@@ -189,6 +203,21 @@ int remove_fruit(){
   *fruit_pos = 0;
   fruit_pos++;
   *fruit_pos = 0;
+
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+1) * BOARD_WIDTH);
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+2) * BOARD_WIDTH);
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+
   ioctl(fbfd,0x4680,&fruit_rect);
   return 0;
 }

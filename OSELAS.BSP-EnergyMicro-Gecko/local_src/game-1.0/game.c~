@@ -127,7 +127,6 @@ void timer_handler(int signo){
     update_pos(snake_head.dir,&snake_head.copyarea->dx, \
                &snake_head.copyarea->dy,&snake_head.pos);
 
-    //printf("%d %d %d\n",board + fruit_rect.dx + (fruit_rect.dy * BOARD_WIDTH), snake_head.pos, *snake_head.pos);
     if (*snake_head.pos == -5888) {
        printf("You got good!\n");	
        snake_tail.move=5;
@@ -177,6 +176,20 @@ int draw_fruit(){
   *fruit_pos = 0xE900;
   fruit_pos++;
   *fruit_pos = 0xE900;
+  
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+1) * BOARD_WIDTH);
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+2) * BOARD_WIDTH);
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
+  fruit_pos++;
+  *fruit_pos = 0xE900;
 
   ioctl(fbfd,0x4680,&fruit_rect);
   return 0;
@@ -190,6 +203,21 @@ int remove_fruit(){
   *fruit_pos = 0;
   fruit_pos++;
   *fruit_pos = 0;
+
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+1) * BOARD_WIDTH);
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+
+  fruit_pos = board + fruit_rect.dx + ((fruit_rect.dy+2) * BOARD_WIDTH);
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+  fruit_pos++;
+  *fruit_pos = 0;
+
   ioctl(fbfd,0x4680,&fruit_rect);
   return 0;
 }
