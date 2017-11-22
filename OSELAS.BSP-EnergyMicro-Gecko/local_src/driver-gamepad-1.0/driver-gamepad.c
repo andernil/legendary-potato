@@ -19,6 +19,7 @@
 #include <linux/interrupt.h>
 #include <asm/siginfo.h>
 #include <linux/signal.h>
+#include <linux/timer.h>
 
 #include "efm32gg.h"
 
@@ -50,7 +51,6 @@ struct file_operations my_fops = {
 .release = driver_release,
 .fasync = driver_fasync,
 };
-
 
 static dev_t dev;
 struct cdev my_cdev;

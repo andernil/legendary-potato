@@ -14,8 +14,8 @@ echo Starting gamepad driver
 modprobe driver-gamepad
 echo Starting timer module
 modprobe timer-module
-echo Starting game
-game
+#echo Starting game
+#game
 
 exec /bin/sh
 

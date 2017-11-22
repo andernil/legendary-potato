@@ -11,13 +11,12 @@
 #include <sys/mman.h>
 
 // linux kernels
-#include <linux/kernel.h>
-#include <linux/timer.h>
 #include <linux/fb.h>
 
 #include "game.h"
 
 FILE* driver;
+FILE* timer;
 
 static short* board;
 
@@ -30,37 +29,47 @@ static snake snake_tail;
 
 dir_list* unused_items = NULL;
 
-static struct timer_list screen_timer;
+//static struct timer_list screen_timer;
 
 static int fbfd;
 
+
 void sigio_handler(int signo)
 {
-    snake_head.dir = (char) fgetc(driver);
+    static int last_button_return = 4;
+    int button_return;
+    button_return = fgetc(driver);
+    printf("button_return: %d last_button_return %d \n", button_return,last_button_return);
+    if (button_return == last_button_return || button_return == 0){
+	timer_handler(0);
+    }else{
+    snake_head.dir = button_return;
     if (unused_items==NULL){
       snake_head.list->next = (void*) malloc(sizeof(dir_list));
-      snake_head.list = snake_head.list->next;
       snake_head.list->dir = snake_head.dir;
+      snake_head.list = snake_head.list->next;
       snake_head.list->count = 0;
       snake_head.list->next = NULL;
     } else {
       snake_head.list->next = unused_items;
+      snake_head.list->dir = snake_head.dir;
       snake_head.list = unused_items;
       if (unused_items->next==snake_tail.list){
         unused_items = NULL;
       } else {
         unused_items = unused_items->next;
       }
-      snake_head.list->dir = snake_head.dir;
       snake_head.list->count = 0;
       snake_head.list->next = NULL;
+    }
+    last_button_return = button_return;
     }
 }
 
 void update_pos(char dir, short* x, short *y, short **pos){
   switch (dir){
     case 1:
-      if (x == 0){
+      if (*x == 0){
         (*x) = (BOARD_WIDTH-1);
         (*pos) += (BOARD_WIDTH-1);
       } else {
@@ -69,7 +78,7 @@ void update_pos(char dir, short* x, short *y, short **pos){
       }
       break;
     case 2:
-      if (y == 0){
+      if (*y == 0){
         (*x) = (BOARD_HEIGHT-1);
         (*pos) += (BOARD_HEIGHT-1)*BOARD_WIDTH;
       } else {
@@ -78,7 +87,7 @@ void update_pos(char dir, short* x, short *y, short **pos){
       }
       break;
     case 4:
-      if (x == (BOARD_WIDTH-1)){
+      if (*x == (BOARD_WIDTH-1)){
         (*x) = 0;
         (*pos)-=(BOARD_WIDTH-1);
       } else {
@@ -87,7 +96,7 @@ void update_pos(char dir, short* x, short *y, short **pos){
       }
       break;
     case 8:
-      if (y == BOARD_HEIGHT-1) {
+      if (*y == BOARD_HEIGHT-1) {
         (*y) = 0;
         (*pos) -= (BOARD_HEIGHT-1)*BOARD_WIDTH;
       } else {
@@ -100,7 +109,7 @@ void update_pos(char dir, short* x, short *y, short **pos){
   }
 }
 
-void screen_timer_handler(unsigned long data){
+void timer_handler(int signo){
   if (snake_head.move==0){
     update_pos(snake_head.dir,&snake_head.copyarea->dx, \
                &snake_head.copyarea->dy,&snake_head.pos);
@@ -130,9 +139,10 @@ void screen_timer_handler(unsigned long data){
 
 int main(int argc, char *argv[])
 {
-	printf("Game starting\n");
+	printf("Game starting, hello world\n");
 	
 	driver = fopen("/dev/driver-gamepad", "rb");
+	timer = fopen("/dev/timer-module", "rb");
 
   fbfd = open("/dev/fb0", O_RDWR, 0);
   board = (short*) mmap(NULL, BOARD_WIDTH * BOARD_HEIGHT, \
@@ -164,7 +174,7 @@ int main(int argc, char *argv[])
   snake_head.list->count = 5;
   snake_head.list->dir = 4;
   snake_head.list->next = NULL;
-  snake_tail.list = unused_items;
+  snake_tail.list = snake_head.list;
   snake_head.move = 0;
   snake_tail.move = 0;
   snake_head.dir = 4;
@@ -176,16 +186,15 @@ int main(int argc, char *argv[])
   snake_tail.pos = board + tail_rect.dx +
                    tail_rect.dy * BOARD_WIDTH;
 
-  setup_timer( &screen_timer, &screen_timer_handler, 0 );
-
 	signal(SIGIO, &sigio_handler);
 	fcntl(fileno(driver), F_SETOWN, getpid());
-
 	long oflags = fcntl(fileno(driver), F_GETFL);
     	fcntl(fileno(driver), F_SETFL, oflags | FASYNC);
 
-  int ret = mod_timer( &screen_timer, jiffies + msecs_to_jiffies(200) );
-  if (ret) printf("Error in mod_timer\n");
+	fcntl(fileno(timer), F_SETOWN, getpid());
+	oflags = fcntl(fileno(timer), F_GETFL);
+    	fcntl(fileno(timer), F_SETFL, oflags | FASYNC);
+
 
   while(1){
 	    printf("\n");

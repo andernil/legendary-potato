@@ -27,12 +27,15 @@
 #define DRIVER_NAME "driver-gamepad"
 
 /*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
+SW1 - left  - 1
+SW2 - up    - 2
+SW3 - right - 4
+SW4 - down  - 8
+
+SW5 - left  - 16
+SW6 - up    - 32
+SW7 - right - 64
+SW8 - down  - 128
  */
 
 static int driver_fasync(int, struct file*, int);
@@ -54,16 +57,15 @@ struct cdev my_cdev;
 struct class *my_class;
 struct fasync_struct* async_queue;
 
+static int Button_pressed;
 
-static int driver_fasync(int fd, struct file* filp, int mode) 
-{
+static int driver_fasync(int fd, struct file* filp, int mode) {
     return fasync_helper(fd, filp, mode, &async_queue);
 }
 
 static ssize_t driver_read(struct file *filp, char __user *buff, size_t count, loff_t *offp){
 //    printk(KERN_INFO "read driver\n");
-    uint32_t buffer = ioread32(GPIO_PC_DIN);
-    copy_to_user(buff, &buffer, 1);
+    copy_to_user(buff, &Button_pressed, 1);
     return 1;
 };
 
@@ -81,6 +83,7 @@ static int driver_release(struct inode* inode, struct file* filp) {
 //Interupt handler
 irqreturn_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs){
     //printk(KERN_ALERT "Handling GPIO interrupt\n");
+    Button_pressed = *GPIO_IF;
     iowrite32(ioread32(GPIO_IF), GPIO_IFC);
 
     if(async_queue){
@@ -93,7 +96,6 @@ irqreturn_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs){
 //Startup/Initalize function
 static int __init template_init(void)
 {
-    printk("Dette er en nyere text7\n");
 
     if(0>alloc_chrdev_region(&dev, 0, 1, DRIVER_NAME)){
 	printk("Error making major and minor numbers\n");
@@ -157,7 +159,7 @@ static int __init template_init(void)
     request_irq(GPIO_ODD_IRQ_LINE, (irq_handler_t)irq_handler, 0, DRIVER_NAME, &my_cdev);
 
 
-   printk("yayy\n");
+   printk("Gamepad driver started\n");
    return 0;
 }
 
