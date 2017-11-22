@@ -66,6 +66,7 @@ static int driver_fasync(int fd, struct file* filp, int mode) {
 static ssize_t driver_read(struct file *filp, char __user *buff, size_t count, loff_t *offp){
 //    printk(KERN_INFO "read driver\n");
     copy_to_user(buff, &Button_pressed, 1);
+    Button_pressed = NULL;
     return 1;
 };
 
