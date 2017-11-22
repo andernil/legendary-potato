@@ -25,7 +25,7 @@ typedef struct {
   fb_copyarea* copyarea;
   dir_list* list;
   char move; // move when 0, counts down
-  char dir;  // 0 east, 1 south, 2 west, 3 north
+  char dir;  // 1 left, 2 up, 4 right, 8 down
 } snake;
 
 

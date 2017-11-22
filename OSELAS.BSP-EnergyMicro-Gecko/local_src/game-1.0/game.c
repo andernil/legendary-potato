@@ -39,7 +39,7 @@ void sigio_handler(int signo)
   button_return = fgetc(driver);
   // Can use either set of 4 buttons.
   if (button_return > 8)
-    button_return << 4;
+    button_return >> 4;
 
     //printf("button_return: %d last_button_return %d \n", button_return,last_button_return);
     // if the button is the same, it is a timer call
@@ -69,6 +69,8 @@ void sigio_handler(int signo)
     }
 }
 
+// this makes sure the snake apear on the other side
+// of the board when crossing the edge
 void update_pos(char dir, short* x, short *y, short **pos){
   switch (dir){
     case 1:
@@ -119,20 +121,20 @@ void timer_handler(int signo){
                &snake_head.copyarea->dy,&snake_head.pos);
 
     if (*snake_head.pos == -5888) {
-       printf("You got good!\n");	
-       snake_tail.move+=15;
-       remove_fruit();
-       draw_fruit();
+      printf("You got good!\n");
+      snake_tail.move+=15;
+      remove_fruit();
+      draw_fruit();
     }
 
     if (*snake_head.pos == 0x0F10){
-	printf("You died, get good!!!!\n");
-	last_button_return = 4;
-      	clear_board();
-        draw_fruit();
-      	inizialise_snake();
-        update_pos(snake_head.dir,&snake_head.copyarea->dx, \
-                   &snake_head.copyarea->dy,&snake_head.pos);
+	    printf("You died, get good!!!!\n");
+	    last_button_return = 4;
+      clear_board();
+      draw_fruit();
+      inizialise_snake();
+      update_pos(snake_head.dir,&snake_head.copyarea->dx, \
+                 &snake_head.copyarea->dy,&snake_head.pos);
     }
     *snake_head.pos = 0x0F10;
     snake_head.list->count++;
@@ -141,14 +143,15 @@ void timer_handler(int signo){
     snake_head.move--;
   }
   if (snake_tail.move==0){
+    // if the count is 0, pop this element
+    // and set the new direction of the tail
     if (snake_tail.list->count==0){
       if (unused_items==NULL)
         unused_items = snake_tail.list;
       snake_tail.dir=snake_tail.list->dir;
       snake_tail.list=snake_tail.list->next;
-    } 
+    }
     snake_tail.list->count--;
-  
     update_pos(snake_tail.dir,&snake_tail.copyarea->dx, \
                &snake_tail.copyarea->dy,&snake_tail.pos);
     *snake_tail.pos = 0;
@@ -193,10 +196,8 @@ int remove_fruit(){
 
 int clear_board()
 {
-  
   printf("Clearing board\n");
   memset(board,0,BOARD_WIDTH*BOARD_HEIGHT*sizeof(short)); 
-  
   ioctl(fbfd,0x4680,&board_rect);
   return 0;
 }
@@ -219,6 +220,7 @@ void inizialise_snake(){
   snake_head.pos = board + head_rect.dx + head_rect.dy * BOARD_WIDTH;
   snake_tail.pos = board + tail_rect.dx + tail_rect.dy * BOARD_WIDTH;
 
+  // freeze the snake at start (not needed)
   snake_tail.move =5;
   snake_head.move =5;
 }
@@ -226,7 +228,6 @@ void inizialise_snake(){
 int main(int argc, char *argv[])
 {
   printf("Game starting, hello snake world\n");
-	
   driver = fopen("/dev/driver-gamepad", "rb");
   timer = fopen("/dev/timer-module", "wb");
 
@@ -244,7 +245,7 @@ int main(int argc, char *argv[])
     exit(EXIT_SUCCESS);
   }
 
-
+  // init all 4 rects
   board_rect.width = BOARD_WIDTH;
   board_rect.height = BOARD_HEIGHT;
   board_rect.dx = 0;
@@ -257,6 +258,7 @@ int main(int argc, char *argv[])
   head_rect.height = 1;
   snake_head.copyarea = &head_rect;
   snake_tail.copyarea = &tail_rect;
+  // allocate first element of the linked list
   snake_head.list = (void*) malloc(sizeof(dir_list));
   snake_head.list->next = NULL;
   inizialise_snake();
@@ -273,9 +275,9 @@ int main(int argc, char *argv[])
   oflags = fcntl(fileno(timer), F_GETFL);
   fcntl(fileno(timer), F_SETFL, oflags | FASYNC);
 
-  fputc(50, timer); 
+  fputc(50, timer);
   while(1){
-	    pause();
+	  pause();
   };
 
 	exit(EXIT_SUCCESS);
