@@ -56,12 +56,13 @@ void sigio_handler(int signo)
       snake_head.list->next = NULL;
     }
 }
+
 void update_pos(char dir, short* x, short *y, short **pos){
   switch (dir){
     case 1:
       if (x == 0){
         (*x) = (BOARD_WIDTH-1);
-        (*pos)+=(BOARD_WIDTH-1);
+        (*pos) += (BOARD_WIDTH-1);
       } else {
         (*x)--;
         (*pos)--;
@@ -70,10 +71,10 @@ void update_pos(char dir, short* x, short *y, short **pos){
     case 2:
       if (y == 0){
         (*x) = (BOARD_HEIGHT-1);
-        (*pos)+= (BOARD_HEIGHT-1)*BOARD_WIDTH;
+        (*pos) += (BOARD_HEIGHT-1)*BOARD_WIDTH;
       } else {
         (*y)--;
-        (*pos)-=BOARD_WIDTH;
+        (*pos) -= BOARD_WIDTH;
       }
       break;
     case 4:
@@ -88,7 +89,7 @@ void update_pos(char dir, short* x, short *y, short **pos){
     case 8:
       if (y == BOARD_HEIGHT-1) {
         (*y) = 0;
-        (*pos)-= (BOARD_HEIGHT-1)*BOARD_WIDTH;
+        (*pos) -= (BOARD_HEIGHT-1)*BOARD_WIDTH;
       } else {
         (*y)++;
         (*pos)+=BOARD_WIDTH;
@@ -110,15 +111,16 @@ void screen_timer_handler(unsigned long data){
     snake_head.move--;
   }
   if (snake_tail.move==0){
-    update_pos(snake_tail.dir,&snake_tail.copyarea->dx, \
-               &snake_tail.copyarea->dy,&snake_tail.pos);
     if (snake_tail.list->count==0){
       if (unused_items==NULL)
         unused_items = snake_tail.list;
+      snake_tail.dir=snake_tail.list->dir;
       snake_tail.list=snake_tail.list->next;
     } else {
       snake_tail.list->count--;
     }
+    update_pos(snake_tail.dir,&snake_tail.copyarea->dx, \
+               &snake_tail.copyarea->dy,&snake_tail.pos);
     *snake_tail.pos = 0;
     ioctl(fbfd,0x4680,snake_tail.copyarea);
   } else {
@@ -140,12 +142,16 @@ int main(int argc, char *argv[])
 		printf("Driver error\n");
 		exit(EXIT_SUCCESS);
 	}
-
-	// init: set rect sizes
-  head_rect.dx = START_X + 2;
-  head_rect.dy = START_Y;
+  // init: draw snake
 	head_rect.width = 3;
 	head_rect.height = 3;
+  head_rect.dy = START_Y;
+  int i;
+  for (i=0; i<SNAKE_MIN_LENGTH;i++){
+    head_rect.dx = START_X - SNAKE_MIN_LENGTH/2 + i;
+    ioctl(fbfd,0x4680,head_rect);
+  }
+	// init: finish copyarea
   tail_rect.dx = START_X - 2;
   tail_rect.dy = START_Y;
 	tail_rect.width = 3;
@@ -153,7 +159,7 @@ int main(int argc, char *argv[])
 	fruit_rect.width = 3;
 	fruit_rect.height = 3;
 
-	// init: place snake & set tail position
+	// init: set tail & head position
   snake_head.list = (void*) malloc(sizeof(dir_list));
   snake_head.list->count = 5;
   snake_head.list->dir = 4;
@@ -164,7 +170,7 @@ int main(int argc, char *argv[])
   snake_head.dir = 4;
   snake_tail.dir = 4;
   snake_head.copyarea = &head_rect;
-  snake_tail.copyearea = &tail_rect;
+  snake_tail.copyarea = &tail_rect;
   snake_head.pos = board + head_rect.dx + \
                    head_rect.dy * BOARD_WIDTH;
   snake_tail.pos = board + tail_rect.dx +
