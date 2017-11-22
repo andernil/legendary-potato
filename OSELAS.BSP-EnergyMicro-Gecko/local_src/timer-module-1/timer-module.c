@@ -65,11 +65,13 @@ static int driver_open(struct inode* inode, struct file* filp) {
     return 0;
 }
 
-static ssize_t driver_write(struct file* filp, char* __user buff,
-        size_t count, loff_t* offp)
+static ssize_t driver_write(struct file* filp, char* __user buff, size_t count, loff_t* offp)
 {
-    //delaytime = buff;
-    printk(KERN_INFO "Writing to buttons doesn't make sense.");
+    unsigned int *kbuf;
+
+    copy_from_user(kbuf, buff, 1);
+    printk(KERN_INFO "New delay: %d",*kbuf);
+    delay_time = *kbuf;
     return 1;
 }
 
